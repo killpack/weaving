@@ -9,7 +9,7 @@ enum HeddlePosition {
 }
 
 
-type Threading = [Space, WarpThread | null]
+type Threading = [Space, WarpThread]
 
 class Heddle {
   threadings: Array<Threading> = []; // maybe it should be a map instead?
@@ -23,11 +23,11 @@ class Heddle {
   }
 
   // don't love this API but one thing at a time
-  sley(warpThreads: Array<WarpThread | null>): void {
+  sley(warpThreads: Array<WarpThread>): void { // no empty spaces for now
     this.threadings = [];
     for (let i = 0; i < this.spaces.length; i++) {
       let space = this.spaces[i];
-      let warpThread = warpThreads[i] ?? null;
+      let warpThread = warpThreads[i]; // TODO handle different lengths
       this.threadings.push([space, warpThread]);
     }
   }
@@ -45,21 +45,23 @@ class WeftThread {
       // when the heddle is down, weft goes under slot threads and over hole threads
     let weftOverSpaceType = (heddlePosition == HeddlePosition.Up) ? Space.Slot : Space.Hole; // this will change if neutral is introduced
 
-    let row = new Array<WarpThread|WeftThread>(); // :(
+    let row = new Array<Cross>(); // :(
 
     heddle.threadings.forEach(([space, warp]) => {
       if (warp === null || space == weftOverSpaceType) {
-        row.push(this);
+        row.push([this, warp]);
       } else {
-        row.push(warp);
+        row.push([warp, this]);
       }
     })
     return row;
   }
 }
 
-// Keeps track of which is visible in each position??
-type WovenRow = Array<WarpThread|WeftThread>;
+
+type Thread = WarpThread|WeftThread;
+type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
+type WovenRow = Array<Cross>;
 
 let warpThreads = [];
 for (let i = 0; i < 10; i++) {
@@ -82,15 +84,31 @@ rows.push(weft.pick(heddle, HeddlePosition.Down));
 
 console.log(rows);
 
-let visualization = ""
-rows.forEach((row) => {
-  row.forEach((visibleThread) => {
-    let cross = (visibleThread.color == "black") ? "⬛︎" : "⬜︎";
-    visualization += cross;
+let root = document.getElementById('root');
+rows.forEach((wovenRow) => {
+  let rowEl = document.createElement("div");
+  rowEl.className = "row";
+  wovenRow.forEach(([overThread, underThread]) => {
+    let crossEl = document.createElement("span");
+    crossEl.className = "cross";
+    let overEl = overUnderEl(overThread, "over");
+    crossEl.appendChild(overEl);
+    let underEl = overUnderEl(underThread, "under");
+    crossEl.appendChild(underEl);
+
+    rowEl.appendChild(crossEl);
   })
-  visualization += "\n";
+  root!.appendChild(rowEl);
 })
-document.body.innerText = visualization;
+
+function overUnderEl(thread: Thread, overUnder: string): HTMLElement {
+    let el = document.createElement("span");
+    el.classList.add(overUnder);
+    el.style.color = thread.color;
+
+    el.classList.add(thread instanceof WarpThread ? "warp" : "weft");
+    return el;
+}
 
 // things to remember: weaving drafts typically start from the right side
 // just render them as divs for now
