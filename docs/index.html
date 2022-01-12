@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Typescript boilerplate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./style.css"/>
+  </head>
+  <body>
+    <script src="./js/app.js" type="module" async defer></script>
+    <div class="layout">
+      <div class="column">
+        <div id="root"></div>
+      </div>
+      <div class="column">
+        <div>
+          <label>Weft color
+            <input type="color" id="weft-color"></input>
+          </label>
+        </div>
+        <div>
+          <label>Heddle position
+            <select id="heddle-position">
+              <option value="up" selected>Up</option>
+              <option value="down">Down</option>
+            </select>
+          </label>
+        </div>
+        <button type="button" id="pick">Weave a pick</button>
+      </div>
+    </div>
+  </body>
+</html>
