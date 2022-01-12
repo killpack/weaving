@@ -81,6 +81,7 @@ rows.push(weft.pick(heddle, HeddlePosition.Down));
 rows.push(weft.pick(heddle, HeddlePosition.Down));
 rows.push(weft.pick(heddle, HeddlePosition.Down));
 rows.push(weft.pick(heddle, HeddlePosition.Down));
+rows.push(weft.pick(heddle, HeddlePosition.Up));
 
 console.log(rows);
 
@@ -104,7 +105,7 @@ rows.forEach((wovenRow) => {
 function overUnderEl(thread: Thread, overUnder: string): HTMLElement {
     let el = document.createElement("span");
     el.classList.add(overUnder);
-    el.style.color = thread.color;
+    el.style.backgroundColor = thread.color;
 
     el.classList.add(thread instanceof WarpThread ? "warp" : "weft");
     return el;
