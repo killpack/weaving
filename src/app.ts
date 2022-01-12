@@ -118,8 +118,14 @@ document.getElementById("pick")!.addEventListener("click", () => {
   let weftColor = (<HTMLInputElement>document.getElementById("weft-color")!).value;
   let weft = new WeftThread();
   weft.color = weftColor || "black";
-  rows.push(weft.pick(heddle, (rows.length % 2 == 0) ? HeddlePosition.Up  : HeddlePosition.Down));
+
+  let heddlePositionEl = <HTMLSelectElement>document.getElementById("heddle-position")!;
+  let heddlePosition = heddlePositionEl.value;
+
+  rows.push(weft.pick(heddle, (heddlePosition == "up") ? HeddlePosition.Up  : HeddlePosition.Down));
   render(rows);
+
+  heddlePositionEl.selectedIndex = (heddlePositionEl.selectedIndex + 1) % heddlePositionEl.length;
 });
 
 // things to remember: weaving drafts typically start from the right side
