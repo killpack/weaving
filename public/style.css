@@ -1,5 +1,17 @@
 body {
-  background-color: grey;
+  background: #fdf6e3;
+}
+
+.layout {
+  display: flex;
+}
+
+.column {
+  flex-direction: column;
+  padding-right: 20px;
+}
+
+#root {
   font-size: 2em;
 }
 

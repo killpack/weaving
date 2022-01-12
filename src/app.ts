@@ -114,6 +114,14 @@ rows.push(weft.pick(heddle, HeddlePosition.Up));
 
 render(rows);
 
+document.getElementById("pick")!.addEventListener("click", () => {
+  let weftColor = (<HTMLInputElement>document.getElementById("weft-color")!).value;
+  let weft = new WeftThread();
+  weft.color = weftColor || "black";
+  rows.push(weft.pick(heddle, (rows.length % 2 == 0) ? HeddlePosition.Up  : HeddlePosition.Down));
+  render(rows);
+});
+
 // things to remember: weaving drafts typically start from the right side
 // just render them as divs for now
 // warp pick + heddle
