@@ -58,7 +58,38 @@ class WeftThread {
   }
 }
 
+// Rendering
 
+function render(wovenRows: Array<WovenRow>): void {
+  let root = document.getElementById('root');
+  root!.replaceChildren();
+  rows.forEach((wovenRow) => {
+    let rowEl = document.createElement("div");
+    rowEl.className = "row";
+    wovenRow.forEach(([overThread, underThread]) => {
+      let crossEl = document.createElement("span");
+      crossEl.className = "cross";
+      let overEl = overUnderEl(overThread, "over");
+      crossEl.appendChild(overEl);
+      let underEl = overUnderEl(underThread, "under");
+      crossEl.appendChild(underEl);
+
+      rowEl.appendChild(crossEl);
+    })
+    root!.appendChild(rowEl);
+  })
+}
+
+function overUnderEl(thread: Thread, overUnder: string): HTMLElement {
+    let el = document.createElement("span");
+    el.classList.add(overUnder);
+    el.style.backgroundColor = thread.color;
+
+    el.classList.add(thread instanceof WarpThread ? "warp" : "weft");
+    return el;
+}
+
+// run it
 type Thread = WarpThread|WeftThread;
 type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
 type WovenRow = Array<Cross>;
@@ -69,8 +100,6 @@ for (let i = 0; i < 10; i++) {
 }
 let heddle = new Heddle(10);
 heddle.sley(warpThreads);
-
-console.log(heddle);
 
 let rows = new Array<WovenRow>();
 let weft = new WeftThread();
@@ -83,33 +112,7 @@ rows.push(weft.pick(heddle, HeddlePosition.Down));
 rows.push(weft.pick(heddle, HeddlePosition.Down));
 rows.push(weft.pick(heddle, HeddlePosition.Up));
 
-console.log(rows);
-
-let root = document.getElementById('root');
-rows.forEach((wovenRow) => {
-  let rowEl = document.createElement("div");
-  rowEl.className = "row";
-  wovenRow.forEach(([overThread, underThread]) => {
-    let crossEl = document.createElement("span");
-    crossEl.className = "cross";
-    let overEl = overUnderEl(overThread, "over");
-    crossEl.appendChild(overEl);
-    let underEl = overUnderEl(underThread, "under");
-    crossEl.appendChild(underEl);
-
-    rowEl.appendChild(crossEl);
-  })
-  root!.appendChild(rowEl);
-})
-
-function overUnderEl(thread: Thread, overUnder: string): HTMLElement {
-    let el = document.createElement("span");
-    el.classList.add(overUnder);
-    el.style.backgroundColor = thread.color;
-
-    el.classList.add(thread instanceof WarpThread ? "warp" : "weft");
-    return el;
-}
+render(rows);
 
 // things to remember: weaving drafts typically start from the right side
 // just render them as divs for now
