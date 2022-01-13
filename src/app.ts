@@ -57,12 +57,29 @@ class WeftThread {
     return row;
   }
 }
-
+//
 // Rendering
 
+function renderHeddle(heddle: Heddle): void {
+  let root = document.getElementById('heddle')!;
+  root.replaceChildren();
+
+  let rowEl = document.createElement("div");
+  rowEl.className = "row";
+
+  heddle.spaces.forEach((space) => {
+    let spaceEl = document.createElement("span");
+    spaceEl.innerText = (space == Space.Hole) ? "○" : "▯";
+    spaceEl.classList.add("space");
+    rowEl.appendChild(spaceEl);
+  });
+
+  root.appendChild(rowEl);
+}
+
 function render(wovenRows: Array<WovenRow>): void {
-  let root = document.getElementById('root');
-  root!.replaceChildren();
+  let root = document.getElementById('visualization')!;
+  root.replaceChildren();
   rows.forEach((wovenRow) => {
     let rowEl = document.createElement("div");
     rowEl.className = "row";
@@ -76,7 +93,7 @@ function render(wovenRows: Array<WovenRow>): void {
 
       rowEl.appendChild(crossEl);
     })
-    root!.appendChild(rowEl);
+    root.appendChild(rowEl);
   })
 }
 
@@ -112,6 +129,7 @@ rows.push(weft.pick(heddle, HeddlePosition.Down));
 rows.push(weft.pick(heddle, HeddlePosition.Down));
 rows.push(weft.pick(heddle, HeddlePosition.Up));
 
+renderHeddle(heddle);
 render(rows);
 
 document.getElementById("pick")!.addEventListener("click", () => {
