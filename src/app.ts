@@ -58,12 +58,43 @@ class WeftThread {
   }
 }
 
+function runWeaving(heddle: Heddle, picks: Array<WeftPick>): Array<WovenRow> {
+  let wovenRows: WovenRow[] = [];
+  picks.forEach(([weft, heddlePosition]) => {
+    wovenRows.push(weft.pick(heddle, heddlePosition));
+  });
+  return wovenRows;
+}
+
+type Thread = WarpThread|WeftThread;
+type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
+type WovenRow = Array<Cross>; // what happens after a pick is completed
+type WeftPick = [WeftThread, HeddlePosition];
+
+//
 // Rendering
 
+function renderHeddle(heddle: Heddle): void {
+  let root = document.getElementById('heddle')!;
+  root.replaceChildren();
+
+  let rowEl = document.createElement("div");
+  rowEl.className = "row";
+
+  heddle.spaces.forEach((space) => {
+    let spaceEl = document.createElement("span");
+    spaceEl.innerText = (space == Space.Hole) ? "○" : "▯";
+    spaceEl.classList.add("space");
+    rowEl.appendChild(spaceEl);
+  });
+
+  root.appendChild(rowEl);
+}
+
 function render(wovenRows: Array<WovenRow>): void {
-  let root = document.getElementById('root');
-  root!.replaceChildren();
-  rows.forEach((wovenRow) => {
+  let root = document.getElementById('visualization')!;
+  root.replaceChildren();
+  wovenRows.forEach((wovenRow) => {
     let rowEl = document.createElement("div");
     rowEl.className = "row";
     wovenRow.forEach(([overThread, underThread]) => {
@@ -76,7 +107,7 @@ function render(wovenRows: Array<WovenRow>): void {
 
       rowEl.appendChild(crossEl);
     })
-    root!.appendChild(rowEl);
+    root.appendChild(rowEl);
   })
 }
 
@@ -90,9 +121,7 @@ function overUnderEl(thread: Thread, overUnder: string): HTMLElement {
 }
 
 // run it
-type Thread = WarpThread|WeftThread;
-type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
-type WovenRow = Array<Cross>;
+
 
 let warpThreads = [];
 for (let i = 0; i < 10; i++) {
@@ -101,18 +130,18 @@ for (let i = 0; i < 10; i++) {
 let heddle = new Heddle(10);
 heddle.sley(warpThreads);
 
-let rows = new Array<WovenRow>();
+let picks = new Array<WeftPick>();
 let weft = new WeftThread();
-rows.push(weft.pick(heddle, HeddlePosition.Up));
-rows.push(weft.pick(heddle, HeddlePosition.Down));
-rows.push(weft.pick(heddle, HeddlePosition.Up));
-rows.push(weft.pick(heddle, HeddlePosition.Down));
-rows.push(weft.pick(heddle, HeddlePosition.Down));
-rows.push(weft.pick(heddle, HeddlePosition.Down));
-rows.push(weft.pick(heddle, HeddlePosition.Down));
-rows.push(weft.pick(heddle, HeddlePosition.Up));
+picks.push([weft, HeddlePosition.Up]);
+picks.push([weft, HeddlePosition.Down]);
+picks.push([weft, HeddlePosition.Up]);
+picks.push([weft, HeddlePosition.Down]);
+picks.push([weft, HeddlePosition.Up]);
+picks.push([weft, HeddlePosition.Down]);
 
-render(rows);
+
+renderHeddle(heddle);
+render(runWeaving(heddle, picks));
 
 document.getElementById("pick")!.addEventListener("click", () => {
   let weftColor = (<HTMLInputElement>document.getElementById("weft-color")!).value;
@@ -122,10 +151,25 @@ document.getElementById("pick")!.addEventListener("click", () => {
   let heddlePositionEl = <HTMLSelectElement>document.getElementById("heddle-position")!;
   let heddlePosition = heddlePositionEl.value;
 
-  rows.push(weft.pick(heddle, (heddlePosition == "up") ? HeddlePosition.Up  : HeddlePosition.Down));
-  render(rows);
+  picks.push([weft, (heddlePosition == "up") ? HeddlePosition.Up  : HeddlePosition.Down]);
+
+  render(runWeaving(heddle, picks));
 
   heddlePositionEl.selectedIndex = (heddlePositionEl.selectedIndex + 1) % heddlePositionEl.length;
+});
+
+document.getElementById('warp-count')!.addEventListener("change", (e) => {
+  let warpCount: number = parseInt((<HTMLInputElement>e.target).value) || 10;
+
+  warpThreads = [];
+  for (let i = 0; i < warpCount; i++) {
+    warpThreads.push(new WarpThread());
+  }
+  heddle = new Heddle(warpCount);
+  heddle.sley(warpThreads);
+
+  renderHeddle(heddle);
+  render(runWeaving(heddle, picks));
 });
 
 // things to remember: weaving drafts typically start from the right side
