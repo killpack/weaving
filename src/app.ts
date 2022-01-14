@@ -10,12 +10,12 @@ enum HeddlePosition {
 
 type Thread = WarpThread|WeftThread;
 type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
-type WovenRow = Array<Cross>; // what happens after a pick is completed
+type WovenRow = [HeddlePosition, Array<Cross>]; // what happens after a pick is completed
 type WeftPick = [WeftThread, HeddlePosition];
 type Threading = [Space, WarpThread]
 
 class Heddle {
-  threadings: Array<Threading> = []; // maybe it should be a map instead?
+  threadings: Array<Threading> = [];
   spaces: Array<Space> = [];
 
   constructor(ends: number) {
@@ -57,7 +57,7 @@ class WeftThread {
         row.push([warp, this]);
       }
     })
-    return row;
+    return [heddlePosition, row];
   }
 }
 
@@ -98,14 +98,10 @@ class Loom {
       wovenRows.push(weft.pick(this.heddle, heddlePosition));
     });
     return wovenRows;
-
   }
 }
 
-
-//
 // Rendering
-
 function renderHeddle(heddle: Heddle): void {
   let root = document.getElementById('heddle')!;
   root.replaceChildren();
@@ -116,7 +112,7 @@ function renderHeddle(heddle: Heddle): void {
   heddle.spaces.forEach((space) => {
     let spaceEl = document.createElement("span");
     spaceEl.innerText = (space == Space.Hole) ? "○" : "▯";
-    spaceEl.classList.add("space");
+    spaceEl.className = "space";
     rowEl.appendChild(spaceEl);
   });
 
@@ -126,10 +122,10 @@ function renderHeddle(heddle: Heddle): void {
 function render(wovenRows: Array<WovenRow>): void {
   let root = document.getElementById('visualization')!;
   root.replaceChildren();
-  wovenRows.forEach((wovenRow) => {
+  wovenRows.forEach(([heddlePosition, crosses]) => {
     let rowEl = document.createElement("div");
     rowEl.className = "row";
-    wovenRow.forEach(([overThread, underThread]) => {
+    crosses.forEach(([overThread, underThread]) => {
       let crossEl = document.createElement("span");
       crossEl.className = "cross";
       let overEl = overUnderEl(overThread, "over");
@@ -139,6 +135,14 @@ function render(wovenRows: Array<WovenRow>): void {
 
       rowEl.appendChild(crossEl);
     })
+    let heddlePositionEl = document.createElement("span");
+    heddlePositionEl.className = "heddle-position-history";
+    if (heddlePosition == HeddlePosition.Up) {
+      heddlePositionEl.innerText = "↑";
+    } else {
+      heddlePositionEl.innerText = "↓";
+    }
+    rowEl.appendChild(heddlePositionEl);
     root.appendChild(rowEl);
   })
 }

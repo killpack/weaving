@@ -21,10 +21,6 @@ body {
 #visualization {
   font-size: 2em;
 }
-
-.row {
-}
-
 #visualization > .row {
   height: 1ch;
   display: flex; /* applies to children */
@@ -69,4 +65,9 @@ body {
   border-color: rgba(0,0,0,.5);
   border-style: solid;
   border-width: 1px 0px;
+}
+
+.heddle-position-history {
+  font-size: 0.4em;
+  padding-left: 1ch;
 }
