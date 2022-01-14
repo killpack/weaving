@@ -8,7 +8,10 @@ enum HeddlePosition {
   Down, // maybe add neutral later
 }
 
-
+type Thread = WarpThread|WeftThread;
+type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
+type WovenRow = Array<Cross>; // what happens after a pick is completed
+type WeftPick = [WeftThread, HeddlePosition];
 type Threading = [Space, WarpThread]
 
 class Heddle {
@@ -58,18 +61,47 @@ class WeftThread {
   }
 }
 
-function runWeaving(heddle: Heddle, picks: Array<WeftPick>): Array<WovenRow> {
-  let wovenRows: WovenRow[] = [];
-  picks.forEach(([weft, heddlePosition]) => {
-    wovenRows.push(weft.pick(heddle, heddlePosition));
-  });
-  return wovenRows;
+class Loom {
+  heddle: Heddle;
+  warpThreads: WarpThread[];
+  weftPicks: WeftPick[];
+
+  constructor(warpEnds: number) {
+    this.heddle = new Heddle(warpEnds);
+    this.warpThreads = [];
+    for (let i = 0; i < warpEnds; i++) {
+      this.warpThreads.push(new WarpThread());
+    }
+
+    this.weftPicks = [];
+  }
+
+  rewarp(warpEnds: number) {
+    // compiler complains if we DRY up the constructor using this method??
+    this.heddle = new Heddle(warpEnds);
+    this.warpThreads = [];
+    for (let i = 0; i < warpEnds; i++) {
+      this.warpThreads.push(new WarpThread());
+    }
+  }
+
+  pick(weftThread: WeftThread, heddlePosition: HeddlePosition): void {
+    this.weftPicks.push([weftThread, heddlePosition]);
+  }
+
+  weave(): WovenRow[] {
+    this.heddle.sley(this.warpThreads);
+
+    let wovenRows: WovenRow[] = [];
+
+    this.weftPicks.forEach(([weft, heddlePosition]) => {
+      wovenRows.push(weft.pick(this.heddle, heddlePosition));
+    });
+    return wovenRows;
+
+  }
 }
 
-type Thread = WarpThread|WeftThread;
-type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
-type WovenRow = Array<Cross>; // what happens after a pick is completed
-type WeftPick = [WeftThread, HeddlePosition];
 
 //
 // Rendering
@@ -122,26 +154,18 @@ function overUnderEl(thread: Thread, overUnder: string): HTMLElement {
 
 // run it
 
-
-let warpThreads = [];
-for (let i = 0; i < 10; i++) {
-  warpThreads.push(new WarpThread());
-}
-let heddle = new Heddle(10);
-heddle.sley(warpThreads);
-
-let picks = new Array<WeftPick>();
+let loom = new Loom(10);
 let weft = new WeftThread();
-picks.push([weft, HeddlePosition.Up]);
-picks.push([weft, HeddlePosition.Down]);
-picks.push([weft, HeddlePosition.Up]);
-picks.push([weft, HeddlePosition.Down]);
-picks.push([weft, HeddlePosition.Up]);
-picks.push([weft, HeddlePosition.Down]);
+loom.pick(weft, HeddlePosition.Up);
+loom.pick(weft, HeddlePosition.Down);
+loom.pick(weft, HeddlePosition.Up);
+loom.pick(weft, HeddlePosition.Down);
+loom.pick(weft, HeddlePosition.Up);
+loom.pick(weft, HeddlePosition.Down);
 
 
-renderHeddle(heddle);
-render(runWeaving(heddle, picks));
+renderHeddle(loom.heddle);
+render(loom.weave());
 
 document.getElementById("pick")!.addEventListener("click", () => {
   let weftColor = (<HTMLInputElement>document.getElementById("weft-color")!).value;
@@ -151,9 +175,9 @@ document.getElementById("pick")!.addEventListener("click", () => {
   let heddlePositionEl = <HTMLSelectElement>document.getElementById("heddle-position")!;
   let heddlePosition = heddlePositionEl.value;
 
-  picks.push([weft, (heddlePosition == "up") ? HeddlePosition.Up  : HeddlePosition.Down]);
+  loom.pick(weft, (heddlePosition == "up") ? HeddlePosition.Up  : HeddlePosition.Down);
 
-  render(runWeaving(heddle, picks));
+  render(loom.weave());
 
   heddlePositionEl.selectedIndex = (heddlePositionEl.selectedIndex + 1) % heddlePositionEl.length;
 });
@@ -161,15 +185,9 @@ document.getElementById("pick")!.addEventListener("click", () => {
 document.getElementById('warp-count')!.addEventListener("change", (e) => {
   let warpCount: number = parseInt((<HTMLInputElement>e.target).value) || 10;
 
-  warpThreads = [];
-  for (let i = 0; i < warpCount; i++) {
-    warpThreads.push(new WarpThread());
-  }
-  heddle = new Heddle(warpCount);
-  heddle.sley(warpThreads);
-
-  renderHeddle(heddle);
-  render(runWeaving(heddle, picks));
+  loom.rewarp(warpCount);
+  renderHeddle(loom.heddle);
+  render(loom.weave());
 });
 
 // things to remember: weaving drafts typically start from the right side
