@@ -37,11 +37,19 @@ class Heddle {
 }
 
 class WarpThread {
-  color: string = "black"; // good enough for now!
+  color: string;
+
+  constructor(color = "black") {
+    this.color = color;
+  }
 }
 
 class WeftThread {
-  color: string = "white";
+  color: string;
+
+  constructor(color = "white") {
+    this.color = color;
+  }
 
   pick(heddle: Heddle, heddlePosition: HeddlePosition): WovenRow  {
       // when the heddle is up, weft goes over slot threads and under hole threads
@@ -173,8 +181,7 @@ render(loom.weave());
 
 document.getElementById("pick")!.addEventListener("click", () => {
   let weftColor = (<HTMLInputElement>document.getElementById("weft-color")!).value;
-  let weft = new WeftThread();
-  weft.color = weftColor || "black";
+  let weft = new WeftThread(weftColor || "black");
 
   let heddlePositionEl = <HTMLSelectElement>document.getElementById("heddle-position")!;
   let heddlePosition = heddlePositionEl.value;
