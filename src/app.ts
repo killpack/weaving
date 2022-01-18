@@ -50,23 +50,6 @@ class WeftThread {
   constructor(color = "white") {
     this.color = color;
   }
-
-  pick(heddle: Heddle, heddlePosition: HeddlePosition): WovenRow  {
-      // when the heddle is up, weft goes over slot threads and under hole threads
-      // when the heddle is down, weft goes under slot threads and over hole threads
-    let weftOverSpaceType = (heddlePosition == HeddlePosition.Up) ? Space.Slot : Space.Hole; // this will change if neutral is introduced
-
-    let row = new Array<Cross>(); // :(
-
-    heddle.threadings.forEach(([space, warp]) => {
-      if (warp === null || space == weftOverSpaceType) {
-        row.push([this, warp]);
-      } else {
-        row.push([warp, this]);
-      }
-    })
-    return [heddlePosition, row];
-  }
 }
 
 class Loom {
@@ -102,10 +85,27 @@ class Loom {
 
     let wovenRows: WovenRow[] = [];
 
-    this.weftPicks.forEach(([weft, heddlePosition]) => {
-      wovenRows.push(weft.pick(this.heddle, heddlePosition));
+    this.weftPicks.forEach((weftPick) => {
+      wovenRows.push(this.weavePick(weftPick));
     });
     return wovenRows;
+  }
+
+  private weavePick([weft, heddlePosition]: WeftPick): WovenRow {
+      // when the heddle is up, weft goes over slot threads and under hole threads
+      // when the heddle is down, weft goes under slot threads and over hole threads
+    let weftOverSpaceType = (heddlePosition == HeddlePosition.Up) ? Space.Slot : Space.Hole; // this will change if neutral is introduced
+
+    let row = new Array<Cross>(); // :(
+
+    this.heddle.threadings.forEach(([space, warp]) => {
+      if (warp === null || space == weftOverSpaceType) {
+        row.push([weft, warp]);
+      } else {
+        row.push([warp, weft]);
+      }
+    })
+    return [heddlePosition, row];
   }
 }
 
