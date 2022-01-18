@@ -123,12 +123,14 @@ class Renderer {
     let rowEl = document.createElement("div");
     rowEl.className = "row";
 
+    let spaceEls: HTMLElement[] = [];
     heddle.spaces.forEach((space) => {
       let spaceEl = document.createElement("span");
       spaceEl.innerText = (space == Space.Hole) ? "○" : "▯";
       spaceEl.className = "space";
-      rowEl.appendChild(spaceEl);
+      spaceEls.unshift(spaceEl); // Start from the right, work to the left
     });
+    rowEl.replaceChildren(...spaceEls);
 
     root.appendChild(rowEl);
   }
@@ -139,6 +141,8 @@ class Renderer {
     wovenRows.forEach(([heddlePosition, crosses]) => {
       let rowEl = document.createElement("div");
       rowEl.className = "row";
+
+      let crossEls: HTMLElement[]  = [];
       crosses.forEach(([overThread, underThread]) => {
         let crossEl = document.createElement("span");
         crossEl.className = "cross";
@@ -147,8 +151,10 @@ class Renderer {
         let underEl = this.overUnderEl(underThread, "under");
         crossEl.appendChild(underEl);
 
-        rowEl.appendChild(crossEl);
+        crossEls.unshift(crossEl); // Start from the right, work to the left
       })
+      rowEl.replaceChildren(...crossEls);
+
       let heddlePositionEl = document.createElement("span");
       heddlePositionEl.className = "heddle-position-history";
       if (heddlePosition == HeddlePosition.Up) {
@@ -203,5 +209,6 @@ document.getElementById('warp-count')!.addEventListener("change", (e) => {
   let warpCount: number = parseInt((<HTMLInputElement>e.target).value) || 10;
 
   loom.rewarp(warpCount);
+
   renderer.renderLoom(loom);
 });
