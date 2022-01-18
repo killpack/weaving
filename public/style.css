@@ -17,20 +17,16 @@ body {
   text-align: center;
 }
 
-
-#visualization {
-  font-size: 2em;
-}
 #visualization > .row {
-  height: 1ch;
+  height: 2ch;
   display: flex; /* applies to children */
 }
 
 .cross {
   position: relative;
   display: inline-block;
-  width: 1ch;
-  height: 1ch;
+  width: 2ch;
+  height: 2ch;
 }
 
 .over, .under {
@@ -50,7 +46,7 @@ body {
   top: 0;
   left: 20%;
   width: 60%;
-  height: 1ch;
+  height: 2ch;
   /* not totally convinced i like this border but whatever */
   border-color: rgba(0,0,0,.5);
   border-style: solid;
@@ -60,7 +56,7 @@ body {
 .weft {
   top: 20%;
   left: 0;
-  width: 1ch;
+  width: 2ch;
   height: 60%;
   border-color: rgba(0,0,0,.5);
   border-style: solid;
@@ -68,6 +64,6 @@ body {
 }
 
 .heddle-position-history {
-  font-size: 0.4em;
-  padding-left: 1ch;
+  font-size: 1.8ch;
+  padding-left: 0.5ch;
 }
