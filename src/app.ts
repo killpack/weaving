@@ -1,3 +1,6 @@
+import ColorPicker from './color-picker.js';
+ColorPicker.register();
+
 enum Space {
   Hole,
   Slot,
@@ -37,27 +40,18 @@ class Heddle {
 }
 
 class WarpThread {
-  color: string = "black"; // good enough for now!
+  color: string;
+
+  constructor(color = "#000000") {
+    this.color = color;
+  }
 }
 
 class WeftThread {
-  color: string = "white";
+  color: string;
 
-  pick(heddle: Heddle, heddlePosition: HeddlePosition): WovenRow  {
-      // when the heddle is up, weft goes over slot threads and under hole threads
-      // when the heddle is down, weft goes under slot threads and over hole threads
-    let weftOverSpaceType = (heddlePosition == HeddlePosition.Up) ? Space.Slot : Space.Hole; // this will change if neutral is introduced
-
-    let row = new Array<Cross>(); // :(
-
-    heddle.threadings.forEach(([space, warp]) => {
-      if (warp === null || space == weftOverSpaceType) {
-        row.push([this, warp]);
-      } else {
-        row.push([warp, this]);
-      }
-    })
-    return [heddlePosition, row];
+  constructor(color = "#FFFFFF") {
+    this.color = color;
   }
 }
 
@@ -94,94 +88,134 @@ class Loom {
 
     let wovenRows: WovenRow[] = [];
 
-    this.weftPicks.forEach(([weft, heddlePosition]) => {
-      wovenRows.push(weft.pick(this.heddle, heddlePosition));
+    this.weftPicks.forEach((weftPick) => {
+      wovenRows.push(this.weavePick(weftPick));
     });
     return wovenRows;
   }
+
+  private weavePick([weft, heddlePosition]: WeftPick): WovenRow {
+      // when the heddle is up, weft goes over slot threads and under hole threads
+      // when the heddle is down, weft goes under slot threads and over hole threads
+    let weftOverSpaceType = (heddlePosition == HeddlePosition.Up) ? Space.Slot : Space.Hole; // this will change if neutral is introduced
+
+    let row = new Array<Cross>(); // :(
+
+    this.heddle.threadings.forEach(([space, warp]) => {
+      if (warp === null || space == weftOverSpaceType) {
+        row.push([weft, warp]);
+      } else {
+        row.push([warp, weft]);
+      }
+    })
+    return [heddlePosition, row];
+  }
 }
 
-// Rendering
-function renderHeddle(heddle: Heddle): void {
-  let root = document.getElementById('heddle')!;
-  root.replaceChildren();
+class Renderer {
+  renderLoom(loom: Loom): void {
+    this.renderHeddle(loom.heddle);
+    this.renderWovenRows(loom, loom.weave());
+  }
 
-  let rowEl = document.createElement("div");
-  rowEl.className = "row";
+  // Rendering
+  private renderHeddle(heddle: Heddle): void {
+    let root = document.getElementById('heddle')!;
+    root.replaceChildren();
 
-  heddle.spaces.forEach((space) => {
-    let spaceEl = document.createElement("span");
-    spaceEl.innerText = (space == Space.Hole) ? "○" : "▯";
-    spaceEl.className = "space";
-    rowEl.appendChild(spaceEl);
-  });
-
-  root.appendChild(rowEl);
-}
-
-function render(wovenRows: Array<WovenRow>): void {
-  let root = document.getElementById('visualization')!;
-  root.replaceChildren();
-  wovenRows.forEach(([heddlePosition, crosses]) => {
     let rowEl = document.createElement("div");
     rowEl.className = "row";
-    crosses.forEach(([overThread, underThread]) => {
-      let crossEl = document.createElement("span");
-      crossEl.className = "cross";
-      let overEl = overUnderEl(overThread, "over");
-      crossEl.appendChild(overEl);
-      let underEl = overUnderEl(underThread, "under");
-      crossEl.appendChild(underEl);
 
-      rowEl.appendChild(crossEl);
-    })
-    let heddlePositionEl = document.createElement("span");
-    heddlePositionEl.className = "heddle-position-history";
-    if (heddlePosition == HeddlePosition.Up) {
-      heddlePositionEl.innerText = "↑";
-    } else {
-      heddlePositionEl.innerText = "↓";
-    }
-    rowEl.appendChild(heddlePositionEl);
+    let spaceEls: HTMLElement[] = [];
+    heddle.spaces.forEach((space) => {
+      let spaceEl = document.createElement("span");
+      spaceEl.innerText = (space == Space.Hole) ? "○" : "▯";
+      spaceEl.className = "space";
+      spaceEls.unshift(spaceEl); // Start from the right, work to the left
+    });
+    rowEl.replaceChildren(...spaceEls);
+
     root.appendChild(rowEl);
-  })
-}
+  }
 
-function overUnderEl(thread: Thread, overUnder: string): HTMLElement {
-    let el = document.createElement("span");
-    el.classList.add(overUnder);
-    el.style.backgroundColor = thread.color;
+  private renderWovenRows(loom: Loom, wovenRows: Array<WovenRow>): void {
+    let root = document.getElementById('visualization')!;
+    root.replaceChildren();
+    wovenRows.forEach(([heddlePosition, crosses], i) => {
+      let rowEl = document.createElement("div");
+      rowEl.className = "row";
 
-    el.classList.add(thread instanceof WarpThread ? "warp" : "weft");
-    return el;
+      let crossEls: HTMLElement[]  = [];
+      crosses.forEach(([overThread, underThread]) => {
+        let crossEl = document.createElement("span");
+        crossEl.className = "cross";
+        let overEl = this.overUnderEl(overThread, "over");
+        crossEl.appendChild(overEl);
+        let underEl = this.overUnderEl(underThread, "under");
+        crossEl.appendChild(underEl);
+
+        crossEls.unshift(crossEl); // Start from the right, work to the left
+      })
+      rowEl.replaceChildren(...crossEls);
+
+      let heddlePositionEl = document.createElement("span");
+      heddlePositionEl.className = "heddle-position-history";
+      if (heddlePosition == HeddlePosition.Up) {
+        heddlePositionEl.innerText = "↑";
+      } else {
+        heddlePositionEl.innerText = "↓";
+      }
+      rowEl.appendChild(heddlePositionEl);
+
+      let weftThread = loom.weftPicks[i][0]; // YUCK HORRIBLE
+      let weftColorEl = document.createElement('color-picker');
+      weftColorEl.setAttribute("value", weftThread.color);
+      weftColorEl.addEventListener("input", (e) => {
+        let weftColor = (<HTMLInputElement>e.target!).value;
+        weftThread.color = weftColor;
+
+        this.renderLoom(loom);
+      });
+      rowEl.appendChild(weftColorEl);
+
+
+      root.appendChild(rowEl);
+    })
+  }
+
+  private overUnderEl(thread: Thread, overUnder: string): HTMLElement {
+      let el = document.createElement("span");
+      el.classList.add(overUnder);
+      el.style.backgroundColor = thread.color;
+
+      el.classList.add(thread instanceof WarpThread ? "warp" : "weft");
+      return el;
+  }
 }
 
 // run it
 
 let loom = new Loom(10);
-let weft = new WeftThread();
-loom.pick(weft, HeddlePosition.Up);
-loom.pick(weft, HeddlePosition.Down);
-loom.pick(weft, HeddlePosition.Up);
-loom.pick(weft, HeddlePosition.Down);
-loom.pick(weft, HeddlePosition.Up);
-loom.pick(weft, HeddlePosition.Down);
+loom.pick(new WeftThread(), HeddlePosition.Up);
+loom.pick(new WeftThread(), HeddlePosition.Down);
+loom.pick(new WeftThread(), HeddlePosition.Up);
+loom.pick(new WeftThread(), HeddlePosition.Down);
+loom.pick(new WeftThread(), HeddlePosition.Up);
+loom.pick(new WeftThread(), HeddlePosition.Down);
 
-
-renderHeddle(loom.heddle);
-render(loom.weave());
+let renderer = new Renderer();
+renderer.renderLoom(loom);
 
 document.getElementById("pick")!.addEventListener("click", () => {
   let weftColor = (<HTMLInputElement>document.getElementById("weft-color")!).value;
-  let weft = new WeftThread();
-  weft.color = weftColor || "black";
+  let weft = new WeftThread(weftColor || "black");
 
   let heddlePositionEl = <HTMLSelectElement>document.getElementById("heddle-position")!;
   let heddlePosition = heddlePositionEl.value;
 
   loom.pick(weft, (heddlePosition == "up") ? HeddlePosition.Up  : HeddlePosition.Down);
 
-  render(loom.weave());
+  renderer.renderLoom(loom);
 
   heddlePositionEl.selectedIndex = (heddlePositionEl.selectedIndex + 1) % heddlePositionEl.length;
 });
@@ -190,10 +224,6 @@ document.getElementById('warp-count')!.addEventListener("change", (e) => {
   let warpCount: number = parseInt((<HTMLInputElement>e.target).value) || 10;
 
   loom.rewarp(warpCount);
-  renderHeddle(loom.heddle);
-  render(loom.weave());
-});
 
-// things to remember: weaving drafts typically start from the right side
-// just render them as divs for now
-// warp pick + heddle
+  renderer.renderLoom(loom);
+});
