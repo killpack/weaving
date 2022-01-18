@@ -1,3 +1,6 @@
+import ColorPicker from './color-picker.js';
+ColorPicker.register();
+
 enum Space {
   Hole,
   Slot,
@@ -39,7 +42,7 @@ class Heddle {
 class WarpThread {
   color: string;
 
-  constructor(color = "black") {
+  constructor(color = "#000000") {
     this.color = color;
   }
 }
@@ -47,7 +50,7 @@ class WarpThread {
 class WeftThread {
   color: string;
 
-  constructor(color = "white") {
+  constructor(color = "#FFFFFF") {
     this.color = color;
   }
 }
@@ -112,7 +115,7 @@ class Loom {
 class Renderer {
   renderLoom(loom: Loom): void {
     this.renderHeddle(loom.heddle);
-    this.renderWovenRows(loom.weave());
+    this.renderWovenRows(loom, loom.weave());
   }
 
   // Rendering
@@ -135,10 +138,10 @@ class Renderer {
     root.appendChild(rowEl);
   }
 
-  private renderWovenRows(wovenRows: Array<WovenRow>): void {
+  private renderWovenRows(loom: Loom, wovenRows: Array<WovenRow>): void {
     let root = document.getElementById('visualization')!;
     root.replaceChildren();
-    wovenRows.forEach(([heddlePosition, crosses]) => {
+    wovenRows.forEach(([heddlePosition, crosses], i) => {
       let rowEl = document.createElement("div");
       rowEl.className = "row";
 
@@ -163,6 +166,19 @@ class Renderer {
         heddlePositionEl.innerText = "↓";
       }
       rowEl.appendChild(heddlePositionEl);
+
+      let weftThread = loom.weftPicks[i][0]; // YUCK HORRIBLE
+      let weftColorEl = document.createElement('color-picker');
+      weftColorEl.setAttribute("value", weftThread.color);
+      weftColorEl.addEventListener("input", (e) => {
+        let weftColor = (<HTMLInputElement>e.target!).value;
+        weftThread.color = weftColor;
+
+        this.renderLoom(loom);
+      });
+      rowEl.appendChild(weftColorEl);
+
+
       root.appendChild(rowEl);
     })
   }
@@ -180,13 +196,12 @@ class Renderer {
 // run it
 
 let loom = new Loom(10);
-let weft = new WeftThread();
-loom.pick(weft, HeddlePosition.Up);
-loom.pick(weft, HeddlePosition.Down);
-loom.pick(weft, HeddlePosition.Up);
-loom.pick(weft, HeddlePosition.Down);
-loom.pick(weft, HeddlePosition.Up);
-loom.pick(weft, HeddlePosition.Down);
+loom.pick(new WeftThread(), HeddlePosition.Up);
+loom.pick(new WeftThread(), HeddlePosition.Down);
+loom.pick(new WeftThread(), HeddlePosition.Up);
+loom.pick(new WeftThread(), HeddlePosition.Down);
+loom.pick(new WeftThread(), HeddlePosition.Up);
+loom.pick(new WeftThread(), HeddlePosition.Down);
 
 let renderer = new Renderer();
 renderer.renderLoom(loom);
