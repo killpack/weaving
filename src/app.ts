@@ -68,6 +68,7 @@ class Loom {
     }
 
     this.weftPicks = [];
+    this.heddle.sley(this.warpThreads);
   }
 
   rewarp(warpEnds: number) {
@@ -77,6 +78,7 @@ class Loom {
     for (let i = 0; i < warpEnds; i++) {
       this.warpThreads.push(new WarpThread());
     }
+    this.heddle.sley(this.warpThreads);
   }
 
   pick(weftThread: WeftThread, heddlePosition: HeddlePosition): void {
@@ -84,8 +86,6 @@ class Loom {
   }
 
   weave(): WovenRow[] {
-    this.heddle.sley(this.warpThreads);
-
     let wovenRows: WovenRow[] = [];
 
     this.weftPicks.forEach((weftPick) => {
@@ -114,8 +114,28 @@ class Loom {
 
 class Renderer {
   renderLoom(loom: Loom): void {
+    this.renderWarpColors(loom);
     this.renderHeddle(loom.heddle);
     this.renderWovenRows(loom, loom.weave());
+  }
+
+  // row-reverse flex-direction: look into it
+  private renderWarpColors(loom: Loom): void {
+    let root = document.getElementById('warp-colors')!;
+
+    let pickers: HTMLElement[] = [];
+    loom.heddle.threadings.forEach(([_, warpThread]) => {
+      let picker = document.createElement('color-picker');
+      picker.setAttribute("value", warpThread.color);
+      picker.addEventListener("input", (e) => {
+        let warpColor = (<HTMLInputElement>e.target!).value;
+        warpThread.color = warpColor;
+
+        this.renderLoom(loom);
+      });
+      pickers.unshift(picker);
+    });
+    root.replaceChildren(...pickers);
   }
 
   // Rendering
@@ -202,7 +222,6 @@ loom.pick(new WeftThread(), HeddlePosition.Up);
 loom.pick(new WeftThread(), HeddlePosition.Down);
 loom.pick(new WeftThread(), HeddlePosition.Up);
 loom.pick(new WeftThread(), HeddlePosition.Down);
-
 let renderer = new Renderer();
 renderer.renderLoom(loom);
 

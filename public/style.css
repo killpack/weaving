@@ -67,3 +67,9 @@ body {
   font-size: 1.8ch;
   padding-left: 0.5ch;
 }
+
+color-picker {
+  height: 2ch;
+  width: 2ch;
+  display: inline-block;
+}

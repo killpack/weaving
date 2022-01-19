@@ -20,8 +20,8 @@ class ColorPicker extends HTMLElement {
     style.textContent = `
 .wrapper {
   display: inline-block;
-  width: 1em;
-  height: 1em;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
   border: 1px solid black;
 }
