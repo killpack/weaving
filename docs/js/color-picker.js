@@ -1,28 +1,16 @@
 class ColorPicker extends HTMLElement {
     constructor() {
         super();
-        // Create a shadow root
-        this.attachShadow({ mode: 'open' }); // sets and returns 'this.shadowRoot'
+        this.attachShadow({ mode: 'open' });
     }
     connectedCallback() {
         var _a;
-        console.log("connected");
         this.setAttribute("value", (_a = this.getAttribute("value")) !== null && _a !== void 0 ? _a : "#FFFFFF");
-        // TODO put this in an external file
-        let style = document.createElement('style');
-        style.textContent = `
-.wrapper {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  cursor: pointer;
-  border: 1px solid black;
-}
-input[type=color] {
-  display: none;
-}
-    `;
-        this.shadowRoot.append(style);
+        let stylesheetLink = document.createElement('link');
+        stylesheetLink.setAttribute('href', ColorPicker.STYLESHEET_URL);
+        stylesheetLink.setAttribute('rel', 'stylesheet');
+        stylesheetLink.setAttribute('type', 'text/css');
+        this.shadowRoot.append(stylesheetLink);
         let wrapper = document.createElement('span');
         wrapper.className = "wrapper";
         wrapper.setAttribute('tabindex', '0');
@@ -60,4 +48,5 @@ input[type=color] {
         this.setAttribute("value", v);
     }
 }
+ColorPicker.STYLESHEET_URL = "./color-picker.css";
 export default ColorPicker;
