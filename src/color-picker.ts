@@ -1,36 +1,21 @@
 class ColorPicker extends HTMLElement {
+  private static STYLESHEET_URL = "./color-picker.css";
 
   constructor() {
     super();
-
-
-    // Create a shadow root
-    this.attachShadow({mode: 'open'}); // sets and returns 'this.shadowRoot'
-
+    this.attachShadow({mode: 'open'});
   }
 
   connectedCallback(): void {
-    console.log("connected");
-
 
     this.setAttribute("value", this.getAttribute("value") ?? "#FFFFFF");
 
-    // TODO put this in an external file
-    let style = document.createElement('style');
-    style.textContent = `
-.wrapper {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  cursor: pointer;
-  border: 1px solid black;
-}
-input[type=color] {
-  display: none;
-}
-    `;
+    let stylesheetLink = document.createElement('link');
+    stylesheetLink.setAttribute('href', ColorPicker.STYLESHEET_URL);
+    stylesheetLink.setAttribute('rel', 'stylesheet');
+    stylesheetLink.setAttribute('type', 'text/css');
 
-    this.shadowRoot!.append(style);
+    this.shadowRoot!.append(stylesheetLink);
 
     let wrapper = document.createElement('span');
     wrapper.className = "wrapper";
