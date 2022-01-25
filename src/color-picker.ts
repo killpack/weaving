@@ -30,6 +30,7 @@ class ColorPicker extends HTMLElement {
 
     wrapper.style.backgroundColor = colorInput.value;
 
+    //TODO this does not work at all on mobile
     this.addEventListener("click", () => {
       colorInput.click();
     });
