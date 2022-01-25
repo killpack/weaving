@@ -53,11 +53,20 @@ class Loom {
   warpThreads: WarpThread[];
   weftPicks: WeftPick[];
 
-  constructor(warpEnds: number) {
+  constructor(warpConfig: number|string[]) {
+    let warpEnds;
+    let warpColors;
+    if (typeof warpConfig === "number") {
+      warpEnds = warpConfig;
+    } else {
+      warpColors = warpConfig;
+      warpEnds = warpColors.length;
+    }
     this.heddle = new Heddle(warpEnds);
     this.warpThreads = [];
     for (let i = 0; i < warpEnds; i++) {
-      this.warpThreads.push(new WarpThread());
+      let color = warpColors?.[i] ?? "#000000";
+      this.warpThreads.push(new WarpThread(color));
     }
 
     this.weftPicks = [];
@@ -208,13 +217,20 @@ class Renderer {
 
 // run it
 
-let loom = new Loom(10);
-loom.pick(new WeftThread(), "Up");
-loom.pick(new WeftThread(), "Down");
-loom.pick(new WeftThread(), "Up");
-loom.pick(new WeftThread(), "Down");
-loom.pick(new WeftThread(), "Up");
-loom.pick(new WeftThread(), "Down");
+const dark = "#0000ff";
+const light = "#60aeff";
+const loom = new Loom([
+  dark, light, light, dark, dark, light, dark, light, dark, dark, light, light, dark
+]);
+loom.pick(new WeftThread(light), "Up");
+loom.pick(new WeftThread(light), "Down");
+loom.pick(new WeftThread(light), "Up");
+loom.pick(new WeftThread(light), "Down");
+loom.pick(new WeftThread(dark), "Down");
+loom.pick(new WeftThread(dark), "Up");
+loom.pick(new WeftThread(dark), "Down");
+loom.pick(new WeftThread(dark), "Up");
+loom.pick(new WeftThread(light), "Down");
 let renderer = new Renderer();
 renderer.renderLoom(loom);
 
