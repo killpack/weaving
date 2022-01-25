@@ -2,11 +2,7 @@ import ColorPicker from './color-picker.js';
 ColorPicker.register();
 
 type Space = "Hole" | "Slot";
-
-enum HeddlePosition {
-  Up,
-  Down, // maybe add neutral later
-}
+type HeddlePosition = "Up" | "Down"; // Maybe add neutral later
 
 type Thread = WarpThread|WeftThread;
 type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
@@ -94,7 +90,7 @@ class Loom {
   private weavePick([weft, heddlePosition]: WeftPick): WovenRow {
       // when the heddle is up, weft goes over slot threads and under hole threads
       // when the heddle is down, weft goes under slot threads and over hole threads
-    let weftOverSpaceType: Space = (heddlePosition == HeddlePosition.Up) ? "Slot" : "Hole"; 
+    let weftOverSpaceType: Space = (heddlePosition == "Up") ? "Slot" : "Hole";
 
     let row = new Array<Cross>(); // :(
 
@@ -177,11 +173,7 @@ class Renderer {
 
       let heddlePositionEl = document.createElement("span");
       heddlePositionEl.className = "heddle-position-history";
-      if (heddlePosition == HeddlePosition.Up) {
-        heddlePositionEl.innerText = "↑";
-      } else {
-        heddlePositionEl.innerText = "↓";
-      }
+      heddlePositionEl.innerText = (heddlePosition == "Up") ? "↑" : "↓";
       rowEl.appendChild(heddlePositionEl);
 
       let weftThread = loom.weftPicks[i][0]; // YUCK HORRIBLE
@@ -213,12 +205,12 @@ class Renderer {
 // run it
 
 let loom = new Loom(10);
-loom.pick(new WeftThread(), HeddlePosition.Up);
-loom.pick(new WeftThread(), HeddlePosition.Down);
-loom.pick(new WeftThread(), HeddlePosition.Up);
-loom.pick(new WeftThread(), HeddlePosition.Down);
-loom.pick(new WeftThread(), HeddlePosition.Up);
-loom.pick(new WeftThread(), HeddlePosition.Down);
+loom.pick(new WeftThread(), "Up");
+loom.pick(new WeftThread(), "Down");
+loom.pick(new WeftThread(), "Up");
+loom.pick(new WeftThread(), "Down");
+loom.pick(new WeftThread(), "Up");
+loom.pick(new WeftThread(), "Down");
 let renderer = new Renderer();
 renderer.renderLoom(loom);
 
@@ -229,7 +221,7 @@ document.getElementById("pick")!.addEventListener("click", () => {
   let heddlePositionEl = <HTMLSelectElement>document.getElementById("heddle-position")!;
   let heddlePosition = heddlePositionEl.value;
 
-  loom.pick(weft, (heddlePosition == "up") ? HeddlePosition.Up  : HeddlePosition.Down);
+  loom.pick(weft, (heddlePosition == "up") ? "Up" : "Down");
 
   renderer.renderLoom(loom);
 
