@@ -4,9 +4,12 @@ body {
 
 .layout {
   display: flex;
+  flex-direction: row;
+  justify-content: end; /* anchor controls to the right */
 }
 
 .column {
+  display: flex;
   flex-direction: column;
   padding-right: 20px;
 }
@@ -19,7 +22,7 @@ body {
 
 #visualization > .row {
   height: 2ch;
-  display: flex; /* applies to children */
+  display: flex;
 }
 
 .cross {
