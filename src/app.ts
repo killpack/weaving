@@ -6,13 +6,13 @@ type HeddlePosition = "Up" | "Down"; // Maybe add neutral later
 
 type Thread = WarpThread|WeftThread;
 type Cross = [Thread,Thread]; // clean this up later but for now [over, under];
-type WovenRow = [HeddlePosition, Array<Cross>]; // what happens after a pick is completed
+type WovenRow = [HeddlePosition, Cross[]]; // what happens after a pick is completed
 type WeftPick = [WeftThread, HeddlePosition];
 type Threading = [Space, WarpThread]
 
 class Heddle {
-  threadings: Array<Threading> = [];
-  spaces: Array<Space> = [];
+  threadings: Threading[] = [];
+  spaces: Space[] = [];
 
   constructor(ends: number) {
     for (let i = 0; i < ends; i++) {
@@ -22,7 +22,7 @@ class Heddle {
   }
 
   // don't love this API but one thing at a time
-  sley(warpThreads: Array<WarpThread>): void { // no empty spaces for now
+  sley(warpThreads: WarpThread[]): void { // no empty spaces for now
     this.threadings = [];
     for (let i = 0; i < this.spaces.length; i++) {
       let space = this.spaces[i];
@@ -92,7 +92,7 @@ class Loom {
       // when the heddle is down, weft goes under slot threads and over hole threads
     let weftOverSpaceType: Space = (heddlePosition == "Up") ? "Slot" : "Hole";
 
-    let row = new Array<Cross>(); // :(
+    let row: Cross[] = [];
 
     this.heddle.threadings.forEach(([space, warp]) => {
       if (warp === null || space == weftOverSpaceType) {
@@ -151,7 +151,7 @@ class Renderer {
     root.appendChild(rowEl);
   }
 
-  private renderWovenRows(loom: Loom, wovenRows: Array<WovenRow>): void {
+  private renderWovenRows(loom: Loom, wovenRows: WovenRow[]): void {
     let root = document.getElementById('visualization')!;
     root.replaceChildren();
     wovenRows.forEach(([heddlePosition, crosses], i) => {
