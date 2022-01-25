@@ -65,12 +65,16 @@ class Loom {
   }
 
   rewarp(warpEnds: number) {
-    // compiler complains if we DRY up the constructor using this method??
     this.heddle = new Heddle(warpEnds);
-    this.warpThreads = [];
-    for (let i = 0; i < warpEnds; i++) {
-      this.warpThreads.push(new WarpThread());
+
+    // Make an attempt to preserve existing warp threads
+    let oldWarpCount = this.warpThreads.length;
+    this.warpThreads.length = warpEnds;
+    for (let i = oldWarpCount; i < warpEnds; i++) {
+      // Add any missing warp threads
+      this.warpThreads[i] = new WarpThread();
     }
+
     this.heddle.sley(this.warpThreads);
   }
 
