@@ -6,7 +6,7 @@
     "watch": "tsc --watch",
     "serve": "http-server -c-1 public"
   },
-  "dependencies": {
+  "devDependencies": {
     "http-server": "^14.1.0"
   }
 }
