@@ -78,10 +78,11 @@ class Loom {
 
     // Make an attempt to preserve existing warp threads
     let oldWarpCount = this.warpThreads.length;
+    let lastColor = this.warpThreads[this.warpThreads.length - 1].color;
     this.warpThreads.length = warpEnds;
     for (let i = oldWarpCount; i < warpEnds; i++) {
       // Add any missing warp threads
-      this.warpThreads[i] = new WarpThread();
+      this.warpThreads[i] = new WarpThread(lastColor);
     }
 
     this.heddle.sley(this.warpThreads);
