@@ -1,10 +1,7 @@
 import ColorPicker from './color-picker.js';
 ColorPicker.register();
 
-enum Space {
-  Hole,
-  Slot,
-}
+type Space = "Hole" | "Slot";
 
 enum HeddlePosition {
   Up,
@@ -23,7 +20,7 @@ class Heddle {
 
   constructor(ends: number) {
     for (let i = 0; i < ends; i++) {
-      let space = (i % 2 == 0) ? Space.Slot : Space.Hole
+      let space : Space = (i % 2 == 0) ? "Slot" : "Hole";
       this.spaces.push(space);
     }
   }
@@ -97,7 +94,7 @@ class Loom {
   private weavePick([weft, heddlePosition]: WeftPick): WovenRow {
       // when the heddle is up, weft goes over slot threads and under hole threads
       // when the heddle is down, weft goes under slot threads and over hole threads
-    let weftOverSpaceType = (heddlePosition == HeddlePosition.Up) ? Space.Slot : Space.Hole; // this will change if neutral is introduced
+    let weftOverSpaceType: Space = (heddlePosition == HeddlePosition.Up) ? "Slot" : "Hole"; 
 
     let row = new Array<Cross>(); // :(
 
@@ -149,7 +146,7 @@ class Renderer {
     let spaceEls: HTMLElement[] = [];
     heddle.spaces.forEach((space) => {
       let spaceEl = document.createElement("span");
-      spaceEl.innerText = (space == Space.Hole) ? "○" : "▯";
+      spaceEl.innerText = (space == "Hole") ? "○" : "▯";
       spaceEl.className = "space";
       spaceEls.unshift(spaceEl); // Start from the right, work to the left
     });
