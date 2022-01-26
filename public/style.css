@@ -42,24 +42,26 @@ body {
   z-index: 0;
 }
 
-.warp {
-  top: 0;
-  left: 20%;
-  width: 60%;
-  height: 2ch;
-  /* not totally convinced i like this border but whatever */
+.warp, .weft {
   border-color: rgba(0,0,0,.5);
   border-style: solid;
+  box-sizing: border-box;
+}
+
+.warp {
+  top: 0;
+  left: 15%;
+  width: 70%;
+  height: 2ch;
+  /* not totally convinced i like this border but whatever */
   border-width: 0px 1px;
 }
 
 .weft {
-  top: 20%;
+  top: 15%;
   left: 0;
   width: 2ch;
-  height: 60%;
-  border-color: rgba(0,0,0,.5);
-  border-style: solid;
+  height: 70%;
   border-width: 1px 0px;
 }
 
