@@ -11,18 +11,16 @@ class ColorPicker extends HTMLElement {
         stylesheetLink.setAttribute('rel', 'stylesheet');
         stylesheetLink.setAttribute('type', 'text/css');
         this.shadowRoot.append(stylesheetLink);
-        let wrapper = document.createElement('span');
+        let wrapper = document.createElement('label');
         wrapper.className = "wrapper";
         wrapper.setAttribute('tabindex', '0');
         this.shadowRoot.append(wrapper);
         let colorInput = document.createElement('input');
         colorInput.setAttribute('type', 'color');
+        colorInput.setAttribute('tabindex', '-1');
         colorInput.value = this.getAttribute("value");
         wrapper.appendChild(colorInput);
         wrapper.style.backgroundColor = colorInput.value;
-        this.addEventListener("click", () => {
-            colorInput.click();
-        });
         // is this the right way to make it keyboard-accessible??
         // not sure but good enough for now?
         this.addEventListener("keydown", (e) => {
