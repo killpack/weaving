@@ -4,9 +4,6 @@
   "description": "",
   "scripts": {
     "watch": "tsc --watch",
-    "serve": "http-server -c-1 public"
-  },
-  "devDependencies": {
-    "http-server": "^14.1.0"
+    "serve": "python3 -m http.server --directory public 8080"
   }
 }
